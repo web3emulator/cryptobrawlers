@@ -1,21 +1,29 @@
-const express = require('express');
-const cors = require('cors');
-const mongoose = require('mongoose');
+const WebSocket = require('ws');
 
-const app = express();
-const PORT = process.env.PORT || 5000;
+const server = new WebSocket.Server({ port: 8080 });
 
-app.use(cors());
-app.use(express.json());
+server.on('connection', (ws) => {
+  console.log('WebSocket connection established');
 
-mongoose.connect('mongodb://localhost:27017/lobbyDB', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+  ws.on('message', (message) => {
+    console.log(`Received message: ${message}`);
+    const data = JSON.parse(message);
+    // Handle message based on type
+    switch (data.type) {
+      case 'keyPress':
+        // Handle keypress
+        break;
+      case 'keyRelease':
+        // Handle keyrelease
+        break;
+      default:
+        console.log('Invalid message type');
+    }
+  });
+
+  ws.send('Hello, client!');
 });
-mongoose.connection.once('open', () => {
-  console.log('MongoDB connection established');
-});
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port: ${PORT}`);
+server.on('error', (error) => {
+  console.error('WebSocket server error:', error);
 });
